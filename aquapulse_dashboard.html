@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AquaPulse — Pipeline Intelligence</title>
+<style>
+:root{
+  --bg:#041426;--sidebar:#051629;--panel:#0a1e35;--panel2:#0b2038;
+  --stroke:#254869;--text:#f3f6ff;--muted:#98c0e6;--cyan:#0ee6c8;
+  --blue:#2cafff;--violet:#b15ef3;--amber:#ffbf55;--pink:#ff3980;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scrollbar-color:#2c5477 #051629}
+body{padding:0;margin:0;font-family:Segoe UI,Inter,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at 72% -13%,#0b2541 0%,#041426 45%,#031121 90%);font-size:14px}
+button,select{font:inherit}
+button{cursor:pointer}
+svg{display:block}
+.shell{display:grid;grid-template-columns:296px minmax(0,1fr);min-height:939px;max-width:2000px;margin:0 auto}
+.sidebar{background:linear-gradient(168deg,#061b30 1%,#041326 55%,#031222 100%);border-right:1px solid #173855;padding:29px 24px 22px 28px;min-height:939px}
+.brand{display:flex;align-items:center;gap:11px;min-height:62px;margin-bottom:27px}
+.brand-icon{width:45px;height:55px;filter:drop-shadow(0 0 7px rgba(24,170,255,.13))}
+.brand h1{margin:0;font-size:33px;font-weight:800;letter-spacing:-1.25px;white-space:nowrap;line-height:1.1}
+.brand h1 span{color:#55b9fa}
+.brand p{color:#19bdff;font-weight:650;font-size:11px;letter-spacing:2.1px;margin:8px 0 0 1px;white-space:nowrap}
+.nav{margin:1px -10px 0 -28px;display:grid;gap:9px}
+.nav button{background:none;color:#c8dfff;border:0;text-align:left;font-size:16px;padding:14px 20px 14px 34px;height:49px;display:flex;align-items:center;gap:21px;position:relative;border-radius:0 13px 13px 0;white-space:nowrap}
+.nav button svg{width:28px;height:28px;color:#90c7f5;flex-shrink:0}
+.nav button.active{color:#fff;background:linear-gradient(90deg,#0f4560,#092842);font-weight:600}
+.nav button.active:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#0fe8ca}
+.nav button.active svg{color:#b2e4ff}
+.sidebar-rule{height:1px;background:#14344e;margin:33px 0 21px}
+.side-label{color:#6d9ecd;letter-spacing:1.6px;font-size:12px;margin:0 0 12px 0;font-weight:550}
+.filter-label{display:flex;align-items:center;gap:14px;color:#afd1f2;margin:11px 0 11px;font-size:14px}
+.filter-label svg{width:22px;height:22px;color:#a2ceee}
+.select-wrap{position:relative;margin:0 0 16px}
+.select-wrap:after{content:"";border:solid #a8d6f6;border-width:0 2px 2px 0;position:absolute;right:17px;top:17px;width:7px;height:7px;transform:rotate(45deg);pointer-events:none}
+select{appearance:none;width:100%;border:1px solid #396483;outline:0;color:#f5f7fc;background:#0b263c;border-radius:11px;height:46px;padding:0 36px 0 16px;font-size:15px;cursor:pointer}
+select:focus-visible{box-shadow:0 0 0 2px #0ee6c8}
+select option{background:#102840}
+.live-panel{border:1px solid #206578;background:linear-gradient(130deg,#082e3f,#08223b);border-radius:11px;padding:11px 12px;margin-top:12px}
+.live-top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#c5f7f2;font-weight:700;font-size:12px}
+.live-dot{display:inline-block;background:#11e4b2;width:9px;height:9px;border-radius:50%;box-shadow:0 0 9px #11e4b2;margin-right:5px;animation:pulse-dot 1.5s ease-in-out infinite}
+.live-dot.paused{background:#ffb85a;box-shadow:none;animation:none}
+@keyframes pulse-dot{50%{opacity:.4;box-shadow:0 0 3px #11e4b2}}
+.live-stats{margin:9px 0 10px;font-size:11px;color:#83adc9}
+.live-btn{width:100%;background:#09677b;color:#e8ffff;border:1px solid #0c99aa;border-radius:7px;padding:7px;font-weight:650;font-size:12px}
+.live-btn:disabled{opacity:.5;cursor:not-allowed}
+.kpi-value.live-vol{font-size:27px}
+@media(max-width:560px){.live-panel{display:block}}
+.badge-sim{border-top:1px solid #14344e;padding-top:16px;margin-top:26px}
+.badge-sim .badge{height:38px;border:1px solid #e69915;background:linear-gradient(100deg,#543408,#5b3b16);display:flex;align-items:center;justify-content:center;gap:10px;border-radius:12px;color:#ffce64;letter-spacing:1.1px;font-weight:750;font-size:12px}
+.sidebar-foot{color:#537e9e;font-size:11px;line-height:1.55;position:relative;margin-top:170px}
+.main{min-width:0;padding:0 19px 25px 19px}
+.hero{height:118px;position:relative;display:flex;align-items:flex-start;justify-content:space-between;overflow:hidden}
+.hero-copy{z-index:1;margin:12px 0 0 13px}
+.hero h2{font-size:44px;line-height:1.13;margin:0;letter-spacing:-1.15px;font-weight:850;white-space:nowrap}
+.hero h2 em{font-style:normal;color:var(--cyan)}
+.hero p{font-size:23px;color:#9cc9f4;margin:3px 0 0 0;letter-spacing:.06px}
+.hero-decor{position:absolute;right:1px;top:19px;width:52%;max-width:705px;height:95px;opacity:.96}
+.hero-motto{position:absolute;right:2px;top:30px;display:flex;align-items:flex-start;gap:13px;color:#a9c2fc;letter-spacing:1.5px;font-size:10px;line-height:1.72;font-weight:650}
+.hero-motto .drop{width:30px;height:34px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:14px}
+.card{background:linear-gradient(145deg,rgba(13,34,56,.96),rgba(8,25,45,.98));border:1px solid var(--stroke);border-radius:14px;box-shadow:inset 0 1px 0 rgba(116,194,248,.025);min-width:0}
+.kpi{height:133px;padding:13px 14px 10px 15px;position:relative;overflow:hidden}
+.kpi-top{display:flex;align-items:center;gap:19px;min-width:0}
+.kpi-orb{flex-shrink:0;width:67px;height:67px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(140deg,#065b68,#075650);color:#10e2cb}
+.kpi:nth-child(2) .kpi-orb{background:linear-gradient(135deg,#0b5585,#08365c);color:#35afff}
+.kpi:nth-child(3) .kpi-orb{background:linear-gradient(135deg,#096e69,#034b4f)}
+.kpi:nth-child(4) .kpi-orb{background:linear-gradient(135deg,#4e2a77,#2a244d);color:#cd86f5}
+.kpi-orb svg{width:43px;height:43px}
+.kpi-text{min-width:0}
+.kpi-name{font-size:17px;color:#d2e5fc;white-space:nowrap;margin-bottom:4px}
+.kpi-value{font-size:31px;font-weight:800;letter-spacing:-1px;white-space:nowrap;line-height:1.15}
+.kpi-value small{font-size:.81em}
+.kpi-desc{font-size:13.5px;color:#99c1e8;margin:17px 0 0 5px;white-space:nowrap}
+.spark{position:absolute;right:17px;top:55px;display:flex;align-items:flex-end;gap:3px;height:26px;opacity:.83}
+.spark i{display:block;width:5px;background:linear-gradient(#2eacfa,#127acb);border-radius:3px 3px 0 0}
+.spark i:nth-child(1){height:9px}.spark i:nth-child(2){height:19px}.spark i:nth-child(3){height:24px}
+.kpi:first-child .spark i,.kpi:nth-child(3) .spark i{background:linear-gradient(#1bd3d7,#098fb4)}
+.pipeline{height:181px;margin-bottom:14px;overflow:hidden;position:relative}
+.card-title{display:flex;align-items:center;gap:13px;font-size:17px;font-weight:740;color:#f5f7ff;margin:0;line-height:1.35}
+.card-title svg{width:26px;height:26px;color:#19c9ff;flex-shrink:0}
+.card-title small{font-size:14px;color:#9fcef4;font-weight:400}
+.pipeline .card-title{position:relative;z-index:2;padding:10px 13px 0}
+.pipe-track{position:absolute;left:0;right:0;top:82px;height:20px;background:linear-gradient(180deg,#182e44 0%,#95bad4 20%,#34485d 39%,#b0cbdd 50%,#385872 62%,#183148 86%,#0a1927 100%);border-top:1px solid #426f86;border-bottom:1px solid #19324a;box-shadow:0 0 10px rgba(74,161,196,.16)}
+.pipe-track:before,.pipe-track:after{content:"";height:28px;position:absolute;top:-5px;width:6px;border-radius:2px;background:linear-gradient(90deg,#1e344a,#94b6c6,#1b3045)}
+.pipe-track:before{left:0}.pipe-track:after{right:0}
+.pipeline-nodes{position:absolute;inset:45px 12px 14px 12px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;justify-items:center;gap:9px}
+.pipe-node{width:min(185px,100%);height:117px;background:linear-gradient(140deg,#173049,#0b2235 72%);border:1.5px solid #a2c7df;border-radius:13px;box-shadow:0 4px 16px rgba(0,0,0,.4),inset 0 1px 5px #0b273a;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px}
+.pipe-node-icon{width:68px;height:55px;display:flex;align-items:center;justify-content:center}
+.pipe-node-icon svg{width:100%;height:100%}
+.node-title{font-size:15px;font-weight:650;text-align:center;line-height:1.1;margin-top:4px}
+.node-sub{font-size:12px;text-align:center;color:#c2dcf9;margin-top:3px}
+.node-sub.good{color:#07e59c;font-size:16px;font-weight:760}
+.node-sub.aqua{color:#10e3d6;font-size:16px;font-weight:760}
+.node-sub.warn{color:#ffc062;font-size:15px;font-weight:760}
+.pipe-chevrons{position:absolute;inset:0;pointer-events:none}
+.pipe-chevron{position:absolute;top:82px;transform:translate(-50%,-13%);z-index:3;color:#1ae9d9;font-size:38px;font-weight:300;text-shadow:0 0 10px #07f4d7;line-height:1}
+.charts-grid{display:grid;grid-template-columns:minmax(0,1.98fr) minmax(345px,1fr);grid-template-rows:210px 215px;gap:14px}
+.graph-card,.mix-card,.events-card{padding:12px 15px 12px;overflow:hidden;min-height:0}
+.graph-card{position:relative}
+.card-topline{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.legend-single{display:flex;align-items:center;color:#bbdafa;gap:10px;font-size:12.5px;white-space:nowrap}
+.legend-key{width:24px;height:4px;border-radius:3px;background:#12f2cf;display:inline-block}
+.chart-holder{height:calc(100% - 35px);margin-top:6px;position:relative}
+.chart-holder canvas{width:100%;height:100%;display:block}
+.chart-tooltip{position:absolute;display:none;pointer-events:none;white-space:nowrap;background:#102f47;border:1px solid #4f88ab;color:#fff;border-radius:7px;padding:7px 9px;font-size:11px;z-index:8;box-shadow:0 5px 16px #0008}
+.mix-card .card-title,.events-card .card-title{margin-bottom:10px}
+.mix-layout{display:flex;align-items:center;gap:22px;justify-content:space-evenly;height:151px}
+.donut{height:158px;width:158px;border-radius:50%;background:conic-gradient(var(--cyan) 0% 97.9%,var(--amber) 97.9% 99.1%,var(--pink) 99.1% 99.7%,var(--violet) 99.7% 100%);display:grid;place-items:center;flex-shrink:0;box-shadow:0 0 24px #00f7cc0a;transition:background .25s}
+.donut-inner{height:105px;width:105px;border-radius:50%;background:#061a2f;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-inner strong{font-size:20px;line-height:1.2}.donut-inner small{font-size:10px;line-height:1.4;text-align:center;letter-spacing:.75px;color:#9ec5ed;margin-top:5px}
+.mix-legend{display:grid;gap:15px;min-width:177px;font-size:12.5px;width:50%}
+.mix-row{display:grid;grid-template-columns:14px minmax(0,1fr) 43px;align-items:center;gap:9px;white-space:nowrap}
+.mix-row .dot{border-radius:50%;width:15px;height:15px;display:block}
+.mix-row .percentage{text-align:right;color:#e2eaff}
+.pressure-legend{display:flex;gap:20px;align-items:center}
+.pressure-legend .legend-key{background:#a154ef}
+.pressure-legend .threshold-key{display:inline-block;width:24px;border-top:3px dashed #ff3980}
+.events-card{padding-top:12px}
+.events-card table{width:100%;border-collapse:collapse;color:#cbe0f5;font-size:12px;text-align:left}
+.events-card th{color:#b4d4ed;font-weight:450;padding:0 7px 7px;white-space:nowrap}
+.events-card td{padding:7px 7px;border-top:1px solid #173752;white-space:nowrap}
+.events-card td:last-child,.events-card th:last-child{text-align:right}
+.events-card .event-color{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:7px;vertical-align:-1px}
+.foot-note{text-align:right;margin:5px 3px 0;color:#688fb8;font-size:10px;letter-spacing:1.6px}
+.hidden{display:none!important}
+.subpage{min-height:630px}
+.subpage-head{padding:22px 18px 20px}
+.subpage-head h3{margin:0;color:#f5f7ff;font-size:26px}.subpage-head p{color:#94bfe1;font-size:15px}
+.analysis-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+.analysis-grid .analysis-card{min-height:230px;padding:20px}
+.bar-list{display:grid;gap:15px;margin-top:30px}
+.barline{display:grid;grid-template-columns:100px 1fr 60px;gap:15px;align-items:center;color:#bddbf7}
+.bar-track{background:#08283d;border-radius:8px;height:13px;overflow:hidden}.bar-fill{background:linear-gradient(90deg,#0789bc,#17ebcf);height:100%;border-radius:8px;transition:width .3s}
+.big-stat{font-size:40px;font-weight:800;margin:25px 0 7px;color:#15edcf}.stat-explainer{line-height:1.6;color:#a0c8eb}
+.lab-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:14px}
+.lab-card{padding:22px;min-height:310px}.lab-card p{color:#adc9e4;line-height:1.6}
+.action-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:26px}
+.action-buttons button{background:#10344c;border:1px solid #376080;color:#eaf6ff;border-radius:9px;padding:13px 9px;font-weight:650}
+.action-buttons button:hover,.action-buttons button:focus-visible{border-color:var(--cyan);background:#0a4f5b}
+.action-buttons button.reset{background:#085747;border-color:#0dcb9e;color:white}
+.scenario-indicator{padding:15px;border-radius:12px;border:1px solid #315776;margin-top:22px;background:#061a2f;font-weight:700;font-size:19px}
+.small-muted{font-size:12px;color:#739abb}
+:focus-visible{outline:2px solid #0ee6c8;outline-offset:3px}
+@media(max-width:1320px){
+  .shell{grid-template-columns:250px minmax(0,1fr)}.sidebar{padding-left:22px;padding-right:17px}.brand h1{font-size:27px}.brand-icon{width:39px}.brand p{font-size:9px}.nav{margin-left:-22px}.nav button{font-size:14px;padding-left:26px;gap:14px}
+  .hero h2{font-size:37px}.hero p{font-size:19px}.kpi{padding:13px 10px}.kpi-top{gap:10px}.kpi-orb{width:52px;height:52px}.kpi-orb svg{width:34px;height:34px}.kpi-name{font-size:14px}.kpi-value{font-size:26px}.kpi-desc{font-size:11px}
+  .mix-layout{gap:10px}.donut{width:132px;height:132px}.donut-inner{width:91px;height:91px}.mix-legend{min-width:150px;font-size:11px}
+}
+@media(max-width:960px){
+  .shell{grid-template-columns:205px minmax(0,1fr)}.sidebar{padding-left:14px;padding-right:11px}.brand{gap:4px}.brand h1{font-size:24px}.brand p{letter-spacing:1px}.brand-icon{width:30px}.nav{margin-left:-14px}.nav button{font-size:12px;padding-left:17px;gap:9px}.nav button svg{width:23px;height:23px}
+  .hero-decor,.hero-motto{display:none}.hero h2{font-size:31px}.hero p{font-size:15px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{height:110px}.kpi-desc{margin-top:10px}.charts-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:220px 225px 220px 235px}.pipe-node{height:110px}.node-title{font-size:12px}.node-sub{font-size:10px}.node-sub.good,.node-sub.aqua{font-size:13px}.pipe-node-icon{height:43px;width:49px}.mix-layout{justify-content:start;gap:45px}.analysis-grid,.lab-grid{grid-template-columns:1fr}
+}
+@media(max-width:560px){.shell{grid-template-columns:1fr}.sidebar{min-height:0;padding:12px;position:relative}.brand{margin-bottom:5px}.nav{display:flex;gap:2px;margin:0;overflow:auto}.nav button{border-radius:8px;padding:8px;height:42px}.nav button.active:before{width:0}.sidebar-rule,.side-label,.filter-label,.select-wrap,.badge-sim,.sidebar-foot{display:none}.main{padding:0 9px}.hero{height:105px}.hero-copy{margin-left:3px}.hero h2{font-size:27px}.hero p{font-size:14px}.kpis{gap:8px}.kpi-orb{width:40px;height:40px}.kpi-orb svg{width:27px;height:27px}.kpi-name{font-size:12px}.kpi-value{font-size:22px}.kpi-desc{font-size:10px}.spark{display:none}.pipeline{overflow-x:auto}.pipeline-nodes{min-width:680px}.pipe-track{min-width:700px}.pipe-chevron{display:none}.mix-layout{gap:17px}.donut{height:120px;width:120px}.donut-inner{width:82px;height:82px}}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden">
+<defs>
+ <linearGradient id="droplet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#55d3ff"/><stop offset=".65" stop-color="#0ce6ce"/><stop offset="1" stop-color="#07a8f3"/></linearGradient>
+ <linearGradient id="pipeSteel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#cef3ff"/><stop offset=".3" stop-color="#5c94b6"/><stop offset=".55" stop-color="#0f4270"/><stop offset=".9" stop-color="#9ccfec"/></linearGradient>
+ <linearGradient id="reservoirFill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f9aff"/><stop offset="1" stop-color="#073e96"/></linearGradient>
+ <linearGradient id="valveFill" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#19ffe3"/><stop offset="1" stop-color="#008c98"/></linearGradient>
+ <symbol id="i-home" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 2 11h3v10h6v-7h3v7h6V11h3L12 2z"/></symbol>
+ <symbol id="i-bars" viewBox="0 0 24 24"><rect x="2" y="12" width="4" height="10" rx=".5" fill="currentColor"/><rect x="10" y="4" width="4" height="18" rx=".5" fill="currentColor"/><rect x="18" y="9" width="4" height="13" rx=".5" fill="currentColor"/></symbol>
+ <symbol id="i-flask" viewBox="0 0 24 24"><path d="M8 2h8M10 2v8L4 20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2l-6-10V2M7 16h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+ <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" fill="none" stroke-width="2"/><path d="M7 2v6M17 2v6M3 10h18M7 13h4v4H7z" stroke="currentColor" fill="none" stroke-width="2"/></symbol>
+ <symbol id="i-settings" viewBox="0 0 24 24"><path d="M10 2h4l.7 2.5 1.8.8 2.2-1.3 2.8 2.9-1.4 2.2.8 1.7L23 11v4l-2.5.7-.8 1.8 1.3 2.2-2.9 2.8-2.2-1.4-1.7.8L14 24h-4l-.7-2.5-1.8-.8-2.2 1.3-2.8-2.9 1.4-2.2-.8-1.7L1 14v-4l2.5-.7.8-1.8L3 5.3l2.9-2.8 2.2 1.4 1.7-.8L10 2zm2 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6" fill="currentColor" transform="translate(0,-1) scale(1,.96)"/></symbol>
+ <symbol id="i-drop" viewBox="0 0 50 60"><path d="M25 4C20 14 8 27 8 39a17 17 0 0 0 34 0C42 27 30 13 25 4Z" fill="none" stroke="url(#droplet)" stroke-width="6" stroke-linejoin="round"/><path d="M25 25c-2 5-8 10-8 16 0 5 4 8 8 8s8-3 8-8" fill="none" stroke="#15acf5" stroke-width="5" stroke-linecap="round"/></symbol>
+ <symbol id="i-gauge" viewBox="0 0 48 48"><path d="M8 33a18 18 0 1 1 32 0" stroke="currentColor" stroke-width="5" fill="none" stroke-linecap="round"/><path d="m24 28 9-11-4 15" fill="currentColor"/><path d="M24 9v5M11 21l4 3M37 21l-4 3" stroke="currentColor" stroke-width="2.5"/></symbol>
+ <symbol id="i-clock" viewBox="0 0 48 48"><circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" stroke-width="5"/><path d="M24 13v12l8 5" stroke="currentColor" fill="none" stroke-width="4" stroke-linecap="round"/></symbol>
+ <symbol id="i-pie" viewBox="0 0 48 48"><path d="M22 4a20 20 0 1 0 22 22H22z" fill="currentColor"/><path d="M26 3v18h18A20 20 0 0 0 26 3" fill="currentColor" opacity=".65"/></symbol>
+ <symbol id="i-wave" viewBox="0 0 28 28"><path d="M1 15h6l4-10 6 18 3-8h7" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="i-list" viewBox="0 0 28 28"><path d="M4 5h3M4 13h3M4 21h3M11 5h14M11 13h14M11 21h14" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></symbol>
+ <symbol id="i-pipeline" viewBox="0 0 28 28"><path d="M3 19v-6h4v6M12 19V9h4v10M21 19V4h4v15" stroke="currentColor" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M3 22h22" stroke="currentColor" stroke-width="2"/></symbol>
+</defs>
+</svg>
+<div class="shell">
+ <aside class="sidebar">
+  <div class="brand"><svg class="brand-icon" viewBox="0 0 50 60"><use href="#i-drop"/></svg><div><h1>Aqua<span>Pulse</span></h1><p>PIPELINE INTELLIGENCE</p></div></div>
+  <nav class="nav" aria-label="Dashboard pages">
+   <button class="active" data-page="overview"><svg><use href="#i-home"/></svg><span>Overview</span></button>
+   <button data-page="analysis"><svg><use href="#i-bars"/></svg><span>Performance Analysis</span></button>
+   <button data-page="lab"><svg><use href="#i-flask"/></svg><span>Fault Lab</span></button>
+  </nav>
+  <div class="sidebar-rule"></div>
+  <div class="side-label">REPORT FILTERS</div>
+  <label class="filter-label" for="dateFilter"><svg><use href="#i-calendar"/></svg>Observation window</label>
+  <div class="select-wrap"><select id="dateFilter"><option value="live" selected>Live simulation · Today</option><option value="oct8">08 Oct – 14 Oct 2026</option><option value="oct1">01 Oct – 07 Oct 2026</option><option value="oct15">15 Oct – 21 Oct 2026</option></select></div>
+  <label class="filter-label" for="conditionFilter"><svg><use href="#i-settings"/></svg>Operating conditions</label>
+  <div class="select-wrap"><select id="conditionFilter"><option value="all">All conditions</option><option value="normal">Normal operation</option><option value="low">Low flow</option><option value="high">High pressure</option><option value="sensor">Sensor fault</option></select></div>
+  <div class="live-panel"><div class="live-top"><span><span id="liveDot" class="live-dot"></span><span id="liveIndicator">LIVE · SIMULATED</span></span><span id="liveElapsed">00:00</span></div><div class="live-stats" id="liveNote">Updating every 1 second · Demo data</div><button type="button" class="live-btn" id="liveToggle">Ⅱ Pause simulation</button></div>
+  <div class="badge-sim"><div class="badge"><span style="font-size:17px">⚠</span> SIMULATED DATA</div></div>
+  <div class="sidebar-foot">Live animated simulation · No physical sensors<br>For monitoring design/testing only</div>
+ </aside>
+ <main class="main">
+  <header class="hero">
+   <div class="hero-copy"><h2>Every drop. <em>Every signal.</em></h2><p>Pipeline monitoring and automatic isolation.</p></div>
+   <svg class="hero-decor" viewBox="0 0 730 98" preserveAspectRatio="none" aria-hidden="true">
+     <g fill="none" stroke="#047ecb" stroke-width=".8" opacity=".58">
+      <path d="M0 91C112 110 153 73 240 75S383 6 452 35 521 88 570 29 627 13 730 39"/>
+      <path d="M0 95C112 115 153 77 240 79S383 13 452 40 521 94 570 35 627 18 730 45"/>
+      <path d="M0 99C112 120 153 81 240 83S383 20 452 45 521 100 570 41 627 24 730 51"/>
+      <path d="M0 103C112 124 153 85 240 87S383 27 452 50 521 106 570 47 627 30 730 57"/>
+      <path d="M0 107C112 128 153 89 240 91S383 34 452 55 521 112 570 53 627 36 730 63"/>
+     </g><path d="M0 88C112 108 153 70 240 72S383 1 452 30 521 83 570 24 627 7 730 33" fill="none" stroke="#08c8ff" stroke-width="1.2" opacity=".8"/>
+   </svg>
+   <div class="hero-motto"><svg class="drop" viewBox="0 0 50 60"><path d="M25 3C21 15 8 27 8 41a17 17 0 0 0 34 0C42 27 29 13 25 3Z" fill="#24b8ff"/><path d="M17 42c0 5 5 9 9 9" fill="none" stroke="#92ddff" stroke-width="3"/></svg><span>SAFER<br>PIPELINES<br>CLEANER WATER<br>BRIGHTER TOMORROWS</span></div>
+  </header>
+  <section id="overviewPage" class="page">
+   <div class="kpis">
+    <div class="card kpi"><div class="kpi-top"><div class="kpi-orb"><svg viewBox="0 0 48 48"><path d="M24 3C18 13 11 22 11 31a13 13 0 0 0 26 0C37 22 30 12 24 3" fill="url(#droplet)"/><path d="M18 32a6 6 0 0 0 6 6" stroke="#b9fff8" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div><div class="kpi-text"><div class="kpi-name">Delivered volume</div><div class="kpi-value" id="volumeVal">51.2 <small>m³</small></div></div></div><div class="spark"><i></i><i></i><i></i></div><div class="kpi-desc" id="volumeDesc">Demo cumulative delivered volume</div></div>
+    <div class="card kpi"><div class="kpi-top"><div class="kpi-orb"><svg><use href="#i-gauge"/></svg></div><div class="kpi-text"><div class="kpi-name" id="pressureName">Mean valid pressure</div><div class="kpi-value" id="pressureVal">1.62 <small>bar</small></div></div></div><div class="spark"><i></i><i></i><i></i></div><div class="kpi-desc" id="pressureDesc">Average of valid pressure readings</div></div>
+    <div class="card kpi"><div class="kpi-top"><div class="kpi-orb"><svg><use href="#i-pie"/></svg></div><div class="kpi-text"><div class="kpi-name">Normal-operation share</div><div class="kpi-value" id="uptimeVal">97.9%</div></div></div><div class="spark"><i></i><i></i><i></i></div><div class="kpi-desc" id="normalDesc">Share of time in normal operation</div></div>
+    <div class="card kpi"><div class="kpi-top"><div class="kpi-orb"><svg><use href="#i-clock"/></svg></div><div class="kpi-text"><div class="kpi-name">Isolation duration</div><div class="kpi-value" id="isolationVal">210 <small>min</small></div></div></div><div class="spark"><i></i><i></i><i></i></div><div class="kpi-desc" id="isolationDesc">Time valve closed during this demo</div></div>
+   </div>
+   <section class="card pipeline">
+    <h3 class="card-title"><svg><use href="#i-pipeline"/></svg>Pipeline status <small id="pipelineSubtitle">(live simulated view)</small></h3>
+    <div class="pipe-track"></div>
+    <div class="pipe-chevrons"><span class="pipe-chevron" style="left:20%">›</span><span class="pipe-chevron" style="left:40%">›</span><span class="pipe-chevron" style="left:60%">›</span><span class="pipe-chevron" style="left:80%">›</span></div>
+    <div class="pipeline-nodes">
+     <div class="pipe-node"><div class="pipe-node-icon"><svg viewBox="0 0 70 58"><ellipse cx="35" cy="9" rx="30" ry="7" fill="#8bd8ff"/><path d="M5 9v42c9 10 52 10 60 0V9" fill="url(#reservoirFill)" stroke="#6cb8ff" stroke-width="2"/><ellipse cx="35" cy="51" rx="30" ry="7" fill="#1868cb"/><path d="M9 29q6-5 12 0t12 0t12 0t12 0 5 0M9 38q6-5 12 0t12 0t12 0t12 0 5 0M9 46q6-5 12 0t12 0t12 0t12 0 5 0" fill="none" stroke="#00c9ff" stroke-width="2.4"/><ellipse cx="35" cy="9" rx="30" ry="7" fill="#7dd2ff" opacity=".83"/></svg></div><div class="node-title">Reservoir</div><div class="node-sub">SOURCE</div></div>
+     <div class="pipe-node"><div class="pipe-node-icon"><svg viewBox="0 0 83 60"><rect x="46" y="26" width="32" height="10" rx="2" fill="url(#pipeSteel)"/><rect x="72" y="23" width="9" height="16" rx="2" fill="#82c4f3"/><circle cx="28" cy="31" r="24" fill="#207fe2" stroke="#80cfff" stroke-width="3"/><circle cx="28" cy="31" r="14" fill="#0c3d7e" stroke="#5ec8fa" stroke-width="6"/><path d="M28 8v12M28 42v12M5 31h10M41 31h10" stroke="#092d66" stroke-width="6"/><circle cx="28" cy="31" r="7" fill="#45b9ff"/></svg></div><div class="node-title">Pump</div><div class="node-sub good" id="pumpLabel">RUNNING</div></div>
+     <div class="pipe-node"><div class="pipe-node-icon"><svg viewBox="0 0 70 60"><rect x="25" y="48" width="22" height="6" rx="2" fill="#82adca"/><path d="M31 42v9h11v-9" fill="#30638e"/><circle cx="36" cy="25" r="20" fill="#173e5e" stroke="#75b8e7" stroke-width="4"/><path d="M22 39a17 17 0 0 1 28-24" stroke="#ace6ff" stroke-width="2" fill="none"/><path d="M36 10v5M19 25h5M48 25h5" stroke="#c0e9ff" stroke-width="2"/><path d="m36 25 10-11" stroke="#8fe1ff" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="25" r="3" fill="#e8faff"/></svg></div><div class="node-title">Flow sensor</div><div class="node-sub" id="flowReading">YF-S201</div></div>
+     <div class="pipe-node"><div class="pipe-node-icon"><svg viewBox="0 0 70 60"><circle cx="35" cy="27" r="22" fill="#09334e" stroke="#74bce8" stroke-width="5"/><path d="M35 12v4M19 27h4M47 27h4" stroke="#addefd" stroke-width="3"/><path d="M35 16v11l-6 5" stroke="#41c4ff" stroke-width="4" stroke-linecap="round" fill="none"/><circle cx="35" cy="27" r="4" fill="#93d6ff"/></svg></div><div class="node-title">Pressure</div><div class="node-sub aqua" id="pipePressure">1.62 bar</div></div>
+     <div class="pipe-node"><div class="pipe-node-icon"><svg viewBox="0 0 78 60"><path d="M7 26h64v13H7z" fill="url(#pipeSteel)"/><path d="M31 12h17v10H31z" fill="#00aa9e"/><path d="M21 28 37 17l16 11-16 13z" fill="url(#valveFill)" stroke="#44ffe3" stroke-width="2"/><path d="M24 20h27v5H24z" fill="#11bbae"/><path d="M27 7h23M39 7v12" stroke="#17efd5" stroke-width="6" stroke-linecap="round"/><circle cx="39" cy="31" r="7" fill="#006c81" stroke="#3cffe6" stroke-width="3"/></svg></div><div class="node-title">Isolation valve</div><div class="node-sub good" id="valveLabel">OPEN</div></div>
+    </div>
+   </section>
+   <section class="charts-grid">
+    <div class="card graph-card"><div class="card-topline"><h3 class="card-title"><svg style="color:#0bf0d1"><use href="#i-wave"/></svg>Flow profile</h3><div class="legend-single"><span class="legend-key"></span>Flow rate (L/min)</div></div><div class="chart-holder" id="flowHolder"><canvas id="flowChart" aria-label="Simulated flow rate from October 8 to October 14"></canvas><div class="chart-tooltip" id="flowTip"></div></div></div>
+    <div class="card mix-card"><h3 class="card-title"><svg><use href="#i-pie"/></svg>Operating mix</h3><div class="mix-layout"><div class="donut" id="donut"><div class="donut-inner"><strong id="operationDonutValue">100%</strong><small>OPERATION<br>TIME</small></div></div><div class="mix-legend"><div class="mix-row"><span class="dot" style="background:var(--cyan)"></span><span>Normal operation</span><span class="percentage" id="mixNormal">97.9%</span></div><div class="mix-row"><span class="dot" style="background:var(--amber)"></span><span>Low flow</span><span class="percentage" id="mixLow">1.2%</span></div><div class="mix-row"><span class="dot" style="background:var(--pink)"></span><span>High pressure</span><span class="percentage" id="mixHigh">0.6%</span></div><div class="mix-row"><span class="dot" style="background:var(--violet)"></span><span>Sensor fault</span><span class="percentage" id="mixSensor">0.3%</span></div></div></div></div>
+    <div class="card graph-card"><div class="card-topline"><h3 class="card-title"><svg><path d="M4 21L11 12 18 16 25 7" stroke="currentColor" stroke-width="2.8" fill="none" stroke-linecap="round"/><circle cx="4" cy="21" r="3" fill="currentColor"/><circle cx="11" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="16" r="3" fill="currentColor"/><circle cx="25" cy="7" r="3" fill="currentColor"/></svg>Pressure envelope</h3><div class="pressure-legend"><div class="legend-single"><span class="legend-key"></span>Pressure (bar)</div><div class="legend-single"><span class="threshold-key"></span>Threshold (2.5 bar)</div></div></div><div class="chart-holder" id="pressureHolder"><canvas id="pressureChart" aria-label="Simulated pressure and 2.5 bar threshold"></canvas><div class="chart-tooltip" id="pressureTip"></div></div></div>
+    <div class="card events-card"><h3 class="card-title"><svg><use href="#i-list"/></svg>Recent events</h3><table><thead><tr><th>Time</th><th>Event</th><th>Value</th></tr></thead><tbody id="eventsBody"></tbody></table></div>
+   </section>
+   <div class="foot-note" id="simulationFootnote">LIVE ANIMATED DEMO • NO REAL SENSORS CONNECTED</div>
+  </section>
+  <section id="analysisPage" class="page hidden subpage"><div class="card subpage-head"><h3>Performance Analysis</h3><p>Explore simulated history or session metrics. Demo mode is not connected to sensors.</p></div><div class="analysis-grid" style="margin-top:14px"><div class="card analysis-card"><h3 class="card-title"><svg><use href="#i-bars"/></svg>Delivered volume by day</h3><div class="bar-list" id="volumeBars"></div></div><div class="card analysis-card"><h3 class="card-title"><svg><use href="#i-gauge"/></svg>Pressure compliance</h3><div class="big-stat" id="complianceStat">99.4%</div><div class="stat-explainer">Share of valid pressure readings below the simulated high-pressure threshold of 2.5 bar.</div></div><div class="card analysis-card"><h3 class="card-title"><svg><use href="#i-wave"/></svg>Operating summary</h3><p class="stat-explainer" id="summaryText">Simulation overview for this observation window.</p></div><div class="card analysis-card"><h3 class="card-title"><svg><use href="#i-pie"/></svg>Isolation overview</h3><div class="big-stat" id="isolationStat">210 min</div><div class="stat-explainer">Total simulated valve-closed time during the selected monitoring period.</div></div></div></section>
+  <section id="labPage" class="page hidden subpage"><div class="card subpage-head"><h3>Fault Lab</h3><p>Inject a simulated fault to see how alarms and automatic isolation would appear on the dashboard. No physical equipment is controlled.</p></div><div class="lab-grid" style="margin-top:14px"><div class="card lab-card"><h3 class="card-title"><svg><use href="#i-flask"/></svg>Fault injection controls</h3><p>Select a test scenario. Return to Overview to inspect the pipeline state, alert, flow, and pressure.</p><div class="action-buttons"><button data-fault="low">⚠ Inject low flow</button><button data-fault="high">⚠ High pressure</button><button data-fault="sensor">⚠ Sensor fault</button><button class="reset" data-fault="none">✓ Reset simulation</button></div><p class="small-muted">Safety note: this is only a visual demonstration. It does not isolate a real pipeline.</p></div><div class="card lab-card"><h3 class="card-title"><svg><use href="#i-settings"/></svg>Scenario status</h3><div class="scenario-indicator" id="scenarioStatus">● NORMAL OPERATION</div><p id="scenarioDetails">Pump running · Isolation valve open · Pressure in normal range</p><div class="small-muted">Sample response: a detected fault triggers a simulated command to close the isolation valve.</div></div></div></section>
+ </main>
+</div>
+<script>
+(() => {
+'use strict';
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const state={window:'live',condition:'all',fault:'none',page:'overview',running:true};
+const windows={
+  oct8:{date:'Oct',start:8,volume:51.2,pressure:1.62,normal:97.9,low:1.2,high:.6,sensor:.3,isolation:210},
+  oct1:{date:'Oct',start:1,volume:48.7,pressure:1.58,normal:98.3,low:.9,high:.5,sensor:.3,isolation:170},
+  oct15:{date:'Oct',start:15,volume:53.4,pressure:1.67,normal:97.2,low:1.5,high:.9,sensor:.4,isolation:285}
+};
+function base(){return windows[state.window]||windows.oct8;}
+function one(n){return Number(n).toFixed(1);}
+
+// LIVE DEMO ENGINE: A simulated sample every 1 second. No external sensor connection.
+// 320-point rolling buffers; current-state metrics and event timestamps are derived from this engine.
+const live={tick:0,flow:[],pressure:[],status:'normal',events:[],volume:51.2,closedSeconds:0,
+            stateCounts:{normal:0,low:0,high:0,sensor:0},startedAt:Date.now()};
+function currentTime(){return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function logEvent(event,value,type){live.events.unshift({time:currentTime(),event,value,type});live.events=live.events.slice(0,12);}
+function activeFault(){
+ if(state.fault!=='none')return state.fault;
+ if(state.condition!=='all'&&state.condition!=='normal')return state.condition;
+ // Demo-only automatic fault intervals, so alarms/isolation can visibly be tested.
+ // After the first 45 seconds, cycle between normal, low flow, high pressure, and sensor fault.
+ if(state.condition==='normal'||live.tick<45)return 'normal';
+ const phase=(live.tick-45)%135;
+ if(phase<8)return 'low';
+ if(phase>=50&&phase<57)return 'high';
+ if(phase>=95&&phase<101)return 'sensor';
+ return 'normal';
+}
+function readSimulatedPoint(t,status){
+ const noise=(Math.random()-.5);
+ if(status==='low')return {flow:Math.max(.05,.15+Math.random()*.11),pressure:.34+Math.random()*.08};
+ if(status==='high')return {flow:0,pressure:2.73+Math.random()*.14};
+ if(status==='sensor')return {flow:NaN,pressure:NaN};
+ return {flow:Math.max(.1,6.0+.41*Math.sin(t/11)+.22*Math.cos(t/4.1)+noise*.48),pressure:1.62+.085*Math.sin(t/14)+.043*Math.cos(t/3)+noise*.13};
+}
+function initLive(){
+ for(let i=0;i<N;i++){
+   const sample=readSimulatedPoint(i,'normal');live.flow.push(sample.flow);live.pressure.push(sample.pressure);
+ }
+ logEvent('Simulation started','—','normal');
+}
+function tickLive(){
+ if(!state.running||state.window!=='live')return;
+ live.tick+=1;
+ const status=activeFault();
+ if(live.status!==status){
+   if(status==='normal'){
+      logEvent('Flow restored','—','normal');logEvent('Isolation valve opened','—','valve');
+   }else{
+      const label={low:'Low flow detected',high:'High pressure detected',sensor:'Sensor reading invalid'}[status];
+      logEvent(label,status==='low'?'0.2 L/min':status==='high'?'2.8 bar':'—',status);
+      logEvent('Isolation valve closed','—','valve');
+   }
+ }
+ live.status=status;
+ const sample=readSimulatedPoint(live.tick+N,status);
+ live.flow.shift();live.flow.push(sample.flow);
+ live.pressure.shift();live.pressure.push(sample.pressure);
+ if(status==='normal'&&Number.isFinite(sample.flow))live.volume+=sample.flow/60/1000;
+ if(status!=='normal')live.closedSeconds++;
+ live.stateCounts[status]++;
+ render();
+}
+function fmtDuration(n){return Math.floor(n/60)+':'+String(n%60).padStart(2,'0');}
+function liveMetrics(){
+ const total=Math.max(1,live.tick);const count=live.stateCounts;
+ const latestP=live.pressure[live.pressure.length-1];
+ return {volume:live.volume,pressure:latestP,normal:live.tick?100*count.normal/total:100,low:100*count.low/total,
+         high:100*count.high/total,sensor:100*count.sensor/total,isolation:live.closedSeconds};
+}
+
+function metrics(){
+ if(state.window==='live')return liveMetrics();
+ const w={...base()};
+ if(state.condition==='normal'){w.normal=100;w.low=0;w.high=0;w.sensor=0;w.isolation=0;w.volume*=1.035;}
+ if(state.condition==='low'){w.normal=0;w.low=100;w.high=0;w.sensor=0;w.volume*=.22;w.pressure*=.55;}
+ if(state.condition==='high'){w.normal=0;w.low=0;w.high=100;w.sensor=0;w.pressure=2.78;}
+ if(state.condition==='sensor'){w.normal=0;w.low=0;w.high=0;w.sensor=100;w.pressure=NaN;}
+ if(state.fault==='low'){w.normal=0;w.low=100;w.high=0;w.sensor=0;w.pressure=.53;w.volume*=.3;w.isolation+=15;}
+ if(state.fault==='high'){w.normal=0;w.low=0;w.high=100;w.sensor=0;w.pressure=2.78;w.isolation+=15;}
+ if(state.fault==='sensor'){w.normal=0;w.low=0;w.high=0;w.sensor=100;w.pressure=NaN;w.isolation+=15;}
+ return w;
+}
+const N=320;
+function triDip(i,at,half){const d=Math.abs(i-at);return d<half?1-d/half:0;}
+function makeSeries(){
+ if(state.window==='live')return {flow:live.flow,pressure:live.pressure};
+ const m=metrics(),flow=[],pressure=[];
+ const factor=state.window==='oct1'?.96:state.window==='oct15'?1.05:1;
+ for(let i=0;i<N;i++){
+  let f=(6.1 +.22*Math.sin(i*.21)+.14*Math.sin(i*.67)+.13*Math.cos(i*.98)+.18*Math.cos(i*.035))*factor;
+  let p=1.6+.075*Math.sin(i*.15)+.07*Math.cos(i*.38)+.04*Math.sin(i*.83);
+  f*=1-.995*Math.max(triDip(i,79,4),triDip(i,140,2.6),triDip(i,216,10),triDip(i,278,3));
+  p*=1-.83*Math.max(triDip(i,79,3),triDip(i,140,2.2),triDip(i,210,3),triDip(i,278,2.3));
+  p+=.45*triDip(i,219,7);
+  if(state.condition==='normal'){f=6.25+.2*Math.sin(i*.16)+.07*Math.cos(i*.41);p=1.61+.05*Math.sin(i*.13);}
+  if(state.condition==='low'){f=.18+.15*Math.sin(i*.1)**2;p=.45+.08*Math.sin(i*.14);}
+  if(state.condition==='high'){f=5.5+.35*Math.sin(i*.21);p=2.76+.12*Math.sin(i*.11);}
+  if(state.condition==='sensor'){f=NaN;p=NaN;}
+  if(state.fault==='low'){f=.15+.09*Math.sin(i*.2)**2;p=.43+.04*Math.cos(i*.13);}
+  if(state.fault==='high'){f=0;p=2.81+.12*Math.sin(i*.15);}
+  if(state.fault==='sensor'){f=NaN;p=NaN;}
+  flow.push(Math.max(0,f));pressure.push(Math.max(0,p));
+ }
+ return {flow,pressure};
+}
+function drawChart(canvas, holder, tip, series, kind){
+ const r=holder.getBoundingClientRect();if(r.width<40||r.height<40)return;
+ const dpr=Math.min(window.devicePixelRatio||1,2),W=r.width,H=r.height;
+ canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);canvas.style.width=W+'px';canvas.style.height=H+'px';
+ const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,W,H);
+ const pad={left:59,right:20,top:8,bottom:32};const cw=W-pad.left-pad.right,ch=H-pad.top-pad.bottom;
+ const max=kind==='flow'?15:3,min=0,tx=(i)=>pad.left+i/(N-1)*cw,ty=(v)=>pad.top+(max-v)/(max-min)*ch;
+ ctx.font='12px Segoe UI, Arial';ctx.textBaseline='middle';ctx.lineWidth=1;
+ const marks=kind==='flow'?[0,5,10,15]:[0,1,2,3];
+ for(const n of marks){const y=ty(n);ctx.strokeStyle='#1a3f5b';ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(W-pad.right,y);ctx.stroke();ctx.fillStyle='#cadbef';ctx.textAlign='right';ctx.fillText(String(n),pad.left-11,y);ctx.strokeStyle='#5683a3';ctx.beginPath();ctx.moveTo(pad.left-4,y);ctx.lineTo(pad.left,y);ctx.stroke();}
+ for(let j=0;j<7;j++){const x=pad.left+j/6*cw;ctx.strokeStyle='#153a55';ctx.beginPath();ctx.moveTo(x,pad.top);ctx.lineTo(x,pad.top+ch);ctx.stroke();ctx.fillStyle='#ccdff5';ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(state.window==='live'?(j===6?'Now':'-'+String(Math.floor(((N-1)*(1-j/6))/60))+':'+String(Math.floor(((N-1)*(1-j/6))%60)).padStart(2,'0')):'Oct '+String(base().start+j).padStart(2,'0'),x,H-25);}
+ ctx.save();ctx.translate(11,pad.top+ch/2);ctx.rotate(-Math.PI/2);ctx.fillStyle='#e0eafb';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='13px Segoe UI, Arial';ctx.fillText(kind==='flow'?'L/min':'Pressure (bar)',0,0);ctx.restore();
+ if(kind==='pressure'){const y=ty(2.5);ctx.strokeStyle='#ff3780';ctx.lineWidth=2;ctx.setLineDash([9,6]);ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(W-pad.right,y);ctx.stroke();ctx.setLineDash([]);}
+ const valid=series.map((v,i)=>Number.isFinite(v)?i:-1).filter(i=>i>=0);
+ if(valid.length){
+  const first=valid[0],last=valid[valid.length-1];ctx.beginPath();ctx.moveTo(tx(first),ty(series[first]));
+  for(const i of valid.slice(1)){ctx.lineTo(tx(i),ty(series[i]));}
+  const gradient=ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+  if(kind==='flow'){gradient.addColorStop(0,'rgba(4,246,211,.65)');gradient.addColorStop(1,'rgba(1,176,166,.02)');}
+  else{gradient.addColorStop(0,'rgba(165,71,238,.53)');gradient.addColorStop(1,'rgba(104,58,199,.03)');}
+  ctx.lineTo(tx(last),ty(0));ctx.lineTo(tx(first),ty(0));ctx.closePath();ctx.fillStyle=gradient;ctx.fill();
+  ctx.beginPath();ctx.moveTo(tx(first),ty(series[first]));for(const i of valid.slice(1))ctx.lineTo(tx(i),ty(series[i]));ctx.lineWidth=2;ctx.strokeStyle=kind==='flow'?'#08e9cd':'#aa55f3';ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+ }
+ canvas.onmousemove=(e)=>{
+  const bounds=canvas.getBoundingClientRect();const x=e.clientX-bounds.left;const i=Math.max(0,Math.min(N-1,Math.round((x-pad.left)/cw*(N-1))));if(x<pad.left||x>W-pad.right||!Number.isFinite(series[i])){tip.style.display='none';return;}
+  tip.textContent=(state.window==='live'?(Math.round((N-1-i))+' sec ago'):'Oct '+String(base().start+Math.min(6,Math.floor(i/N*7))).padStart(2,'0'))+' · '+one(series[i])+(kind==='flow'?' L/min':' bar');tip.style.display='block';tip.style.left=Math.max(2,Math.min(W-135,x+12))+'px';tip.style.top=Math.max(0,ty(series[i])-30)+'px';
+ };
+ canvas.onmouseleave=()=>{tip.style.display='none';};
+}
+function renderCharts(){const s=makeSeries();drawChart($('#flowChart'),$('#flowHolder'),$('#flowTip'),s.flow,'flow');drawChart($('#pressureChart'),$('#pressureHolder'),$('#pressureTip'),s.pressure,'pressure');}
+const colors={low:'#ffbf55',high:'#ff3980',sensor:'#b15ef3',normal:'#0ee6c8',valve:'#9956eb'};
+function eventRows(){if(state.window==='live'){const rows=live.events.slice(0,4);$('#eventsBody').innerHTML=rows.map(r=>'<tr><td>'+r.time+'</td><td><span class="event-color" style="background:'+colors[r.type]+'"></span>'+r.event+'</td><td>'+r.value+'</td></tr>').join('');return;}const offset=base().start-8;const d1=String(12+offset).padStart(2,'0');const d2=String(13+offset).padStart(2,'0');
+ let rows=[{time:d1+' Oct 2026 14:32',event:'Low flow detected',value:'0.2 L/min',type:'low'},{time:d1+' Oct 2026 14:33',event:'Isolation valve closed',value:'—',type:'valve'},{time:d2+' Oct 2026 09:17',event:'Flow restored',value:'5.1 L/min',type:'normal'},{time:d2+' Oct 2026 09:18',event:'Isolation valve opened',value:'—',type:'valve'}];
+ if(state.condition==='normal')rows=rows.slice(2);
+ if(state.condition==='low')rows=rows.slice(0,2);
+ if(state.condition==='high')rows=[{time:d1+' Oct 2026 14:32',event:'High pressure detected',value:'2.78 bar',type:'high'},{time:d1+' Oct 2026 14:33',event:'Isolation valve closed',value:'—',type:'valve'}];
+ if(state.condition==='sensor')rows=[{time:d1+' Oct 2026 14:32',event:'Sensor reading invalid',value:'—',type:'sensor'},{time:d1+' Oct 2026 14:33',event:'Isolation valve closed',value:'—',type:'valve'}];
+ if(state.fault!=='none'){const name={low:'Low flow detected',high:'High pressure detected',sensor:'Sensor reading invalid'}[state.fault];rows=[{time:'Simulation · now',event:name,value:state.fault==='low'?'0.2 L/min':state.fault==='high'?'2.78 bar':'—',type:state.fault},{time:'Simulation · now',event:'Isolation valve closed',value:'—',type:'valve'},...rows].slice(0,4);}
+ $('#eventsBody').innerHTML=rows.map(r=>'<tr><td>'+r.time+'</td><td><span class="event-color" style="background:'+colors[r.type]+'"></span>'+r.event+'</td><td>'+r.value+'</td></tr>').join('');
+}
+function renderKpis(){const m=metrics();const isLive=state.window==='live';
+ $('#volumeVal').innerHTML=(isLive?m.volume.toFixed(3):one(m.volume))+' <small>m³</small>';
+ $('#volumeVal').classList.toggle('live-vol',isLive);
+ $('#pressureVal').innerHTML=Number.isFinite(m.pressure)?m.pressure.toFixed(2)+' <small>bar</small>':'— <small>bar</small>';
+ $('#uptimeVal').textContent=one(m.normal)+'%';
+ $('#isolationVal').innerHTML=isLive?fmtDuration(m.isolation)+' <small>m:s</small>':m.isolation+' <small>min</small>';
+ $('#volumeDesc').textContent=isLive?'Demo cumulative volume (illustrative baseline)':'Total volume delivered in selected period';
+ $('#pressureName').textContent=isLive?'Current pressure':'Mean valid pressure';
+ $('#pressureDesc').textContent=isLive?'Latest simulated valid pressure reading':'Average of valid pressure readings';
+ $('#flowReading').textContent=isLive?(Number.isFinite(live.flow[live.flow.length-1])?live.flow[live.flow.length-1].toFixed(1)+' L/min':'NO DATA'):'YF-S201';
+ $('#normalDesc').textContent=isLive?'Normal operation during live demo':'Proportion of time in normal operation';
+ $('#isolationDesc').textContent=isLive?'Valve-closed time during this demo':'Total time with isolation valve closed';
+ $('#pipelineSubtitle').textContent=isLive?'(live simulation)':'(historical demo)';
+ $('#operationDonutValue').textContent='100%';
+ $('#liveElapsed').textContent=fmtDuration(live.tick);
+ $('#liveIndicator').textContent=!isLive?'HISTORY · DEMO':(state.running?'LIVE · SIMULATED':'PAUSED · DEMO');
+ $('#liveDot').classList.toggle('paused',!isLive||!state.running);
+ $('#liveToggle').disabled=!isLive;
+ $('#liveToggle').textContent=state.running?'Ⅱ Pause simulation':'▶ Resume simulation';
+ $('#liveNote').textContent=isLive?'Updating every second · demo data':'Select Live simulation to resume updates';
+ $('#simulationFootnote').textContent=isLive?'LIVE ANIMATED DEMO • NO REAL SENSORS CONNECTED':'SIMULATED HISTORICAL DATA • DESIGN PREVIEW';
+
+ const closed=isLive?live.status!=='normal':state.fault!=='none';$('#pumpLabel').textContent=closed?'STOPPED':'RUNNING';$('#pumpLabel').className='node-sub '+(closed?'warn':'good');$('#pipePressure').textContent=Number.isFinite(m.pressure)?m.pressure.toFixed(2)+' bar':'NO DATA';$('#valveLabel').textContent=closed?'CLOSED':'OPEN';$('#valveLabel').className='node-sub '+(closed?'warn':'good');
+ $('#mixNormal').textContent=one(m.normal)+'%';$('#mixLow').textContent=one(m.low)+'%';$('#mixHigh').textContent=one(m.high)+'%';$('#mixSensor').textContent=one(m.sensor)+'%';
+ const a=m.normal,b=a+m.low,c=b+m.high;$('#donut').style.background='conic-gradient(var(--cyan) 0% '+a+'%,var(--amber) '+a+'% '+b+'%,var(--pink) '+b+'% '+c+'%,var(--violet) '+c+'% 100%)';
+}
+function renderAnalysis(){const m=metrics();if(state.window==='live'){const labels=['-6 min','-5 min','-4 min','-3 min','-2 min','-1 min','Now'];const amounts=labels.map((_,i)=>{const start=Math.max(0,live.flow.length-7*45+i*45),segment=live.flow.slice(start,start+45).filter(Number.isFinite);return segment.reduce((a,b)=>a+b,0)/60/1000;});const mx=Math.max(.01,...amounts)*1.2;$('#volumeBars').innerHTML=amounts.map((v,i)=>'<div class="barline"><span>'+labels[i]+'</span><div class="bar-track"><div class="bar-fill" style="width:'+(v/mx*100).toFixed(1)+'%"></div></div><strong>'+v.toFixed(3)+' m³</strong></div>').join('');const valids=live.pressure.filter(Number.isFinite);$('#complianceStat').textContent=valids.length?(100*valids.filter(v=>v<2.5).length/valids.length).toFixed(1)+'%':'N/A';$('#isolationStat').textContent=fmtDuration(m.isolation)+' m:s';$('#summaryText').textContent='LIVE DEMO: latest pressure '+(Number.isFinite(m.pressure)?m.pressure.toFixed(2)+' bar':'sensor invalid')+'. Cumulative demo volume '+m.volume.toFixed(3)+' m³. Time since page opened: '+fmtDuration(live.tick)+'. No actual sensor is connected.';return;}const amounts=[.93,1.02,.98,1.06,.89,1.07,1.05].map(x=>x*m.volume/7);const max=Math.max(...amounts)*1.1;$('#volumeBars').innerHTML=amounts.map((v,i)=>'<div class="barline"><span>Oct '+String(base().start+i).padStart(2,'0')+'</span><div class="bar-track"><div class="bar-fill" style="width:'+(v/max*100).toFixed(1)+'%"></div></div><strong>'+v.toFixed(1)+' m³</strong></div>').join('');$('#complianceStat').textContent=state.condition==='high'||state.fault==='high'?'0.0%':state.condition==='sensor'||state.fault==='sensor'?'N/A':'99.4%';$('#isolationStat').textContent=m.isolation+' min';$('#summaryText').textContent='Estimated delivered volume: '+one(m.volume)+' m³. Mean valid pressure: '+(Number.isFinite(m.pressure)?m.pressure.toFixed(2)+' bar':'unavailable')+'. Normal operation: '+one(m.normal)+'%. All values shown are generated for dashboard demonstration only.';}
+function renderScenario(){const f=state.window==='live'?live.status:state.fault;const map={normal:['● NORMAL OPERATION','Pump running · Isolation valve open · Pressure in normal range'],none:['● NORMAL OPERATION','Pump running · Isolation valve open · Pressure in normal range'],low:['⚠ LOW FLOW DETECTED','Simulated pump stopped · Isolation valve closed · Flow rate below threshold'],high:['⚠ HIGH PRESSURE DETECTED','Simulated pump stopped · Isolation valve closed · Pressure above 2.5 bar limit'],sensor:['⚠ SENSOR FAULT DETECTED','Simulated pump stopped · Isolation valve closed · Pressure reading unavailable']};$('#scenarioStatus').textContent=map[f][0];$('#scenarioStatus').style.color=(f==='none'||f==='normal')?'#0ee6c8':'#ffbf55';$('#scenarioDetails').textContent=map[f][1];}
+function render(){renderKpis();eventRows();renderAnalysis();renderScenario();if(state.page==='overview')requestAnimationFrame(renderCharts);}
+function navigate(page){state.page=page;$$('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.page===page);b.setAttribute('aria-current',b.dataset.page===page?'page':'false');});$$('.page').forEach(e=>e.classList.add('hidden'));$('#'+(page==='overview'?'overviewPage':page==='analysis'?'analysisPage':'labPage')).classList.remove('hidden');render();}
+$$('.nav button').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.page)));
+$('#dateFilter').addEventListener('change',e=>{state.window=e.target.value;render();});
+$('#liveToggle').addEventListener('click',()=>{if(state.window!=='live')return;state.running=!state.running;render();});
+$('#conditionFilter').addEventListener('change',e=>{state.condition=e.target.value;render();});
+$$('[data-fault]').forEach(b=>b.addEventListener('click',()=>{state.fault=b.dataset.fault;if(state.window==='live'){tickLive();}else{render();}}));
+let resizeHandle=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeHandle);resizeHandle=requestAnimationFrame(()=>{if(state.page==='overview')renderCharts();});});
+initLive();
+render();
+setInterval(tickLive,1000);
+})();
+</script>
+</body></html>
